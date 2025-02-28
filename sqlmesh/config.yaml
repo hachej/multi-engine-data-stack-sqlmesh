@@ -1,0 +1,35 @@
+gateways:
+  athena:
+    connection:
+      type: athena
+      work_group: primary
+      catalog_name: multiengine
+  duckdb_local:
+    connection:
+      type: duckdb
+      catalogs:
+        persistent: 'local.duckdb'
+        ephemeral: ':memory:'
+  duckdb_pg:
+    connection:
+      type: duckdb
+      catalogs:
+        main_db:
+          type: postgres
+          path: 'dbname=main_db user=postgres host=127.0.0.1'
+      extensions:
+        - name: iceberg
+  postgres:
+    connection:
+      type: postgres
+      database: main_db
+      user: user
+      password: password
+      host: 127.0.0.1
+      port: 5432
+
+default_gateway: duckdb_local
+
+model_defaults:
+  start: 2025-02-27
+  dialect: duckdb
