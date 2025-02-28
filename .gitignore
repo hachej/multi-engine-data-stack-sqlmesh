@@ -1,0 +1,4 @@
+sqlmesh/venv/
+sqlmesh/.cache
+sqlmesh/logs
+sqlmesh/local.duckdb
