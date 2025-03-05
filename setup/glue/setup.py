@@ -4,12 +4,20 @@
 #   "pyarrow",
 # ]
 # ///
-
+from pyiceberg.schema import Schema
 from pyiceberg.catalog import load_catalog
 import pyarrow.parquet as pq
 import pyarrow as pa
 import os 
-
+from pyiceberg.types import (
+    TimestampType,
+    FloatType,
+    DoubleType, 
+    StringType,
+    NestedField,
+    StructType,
+    BooleanType
+)
 ## CREATE CATALOG
 catalog = load_catalog("glue", **{"type": "glue", "s3.region":"eu-central-1", "glue.region":"eu-central-1"})
 
@@ -23,13 +31,11 @@ tables = catalog.list_tables("multiengine")
 
 if ("multiengine", "events") not in tables:
     print("Creating table")
-    schema = pa.schema(
-        [
-            pa.field("event_id", pa.string(), nullable=False),
-            pa.field("user_id", pa.string(), nullable=False),
-            pa.field("action", pa.string(), nullable=True),
-            pa.field("timestamp", pa.int64(), nullable=False),
-        ]
+    schema = Schema(
+        NestedField(field_id=1, name="event_id", field_type=StringType(), required=False),
+        NestedField(field_id=2, name="user_id", field_type=StringType(), required=False),
+        NestedField(field_id=3, name="action", field_type=StringType(), required=False),
+        NestedField(field_id=4, name="timestamp", field_type=TimestampType(), required=False)
     )
 
     catalog.create_table(
@@ -40,13 +46,12 @@ if ("multiengine", "events") not in tables:
 
 if ("multiengine", "metrics") not in tables:
     print("Creating metrics table")
-    schema = pa.schema(
-        [
-            pa.field("metric_id", pa.string(), nullable=False),
-            pa.field("metric_name", pa.string(), nullable=False),
-            pa.field("metric_value", pa.float64(), nullable=False),
-            pa.field("timestamp", pa.int64(), nullable=False),
-        ]
+
+    schema = Schema(
+        NestedField(field_id=1, name="metric_id", field_type=StringType(), required=True),
+        NestedField(field_id=2, name="metric_name", field_type=StringType(), required=True), 
+        NestedField(field_id=3, name="metric_value", field_type=DoubleType(), required=True),
+        NestedField(field_id=4, name="timestamp", field_type=TimestampType(), required=True)
     )
 
     catalog.create_table(

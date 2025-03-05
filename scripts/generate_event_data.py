@@ -9,7 +9,7 @@ import boto3
 import json
 import random
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pyarrow as pa
 import pyarrow.parquet as pq
 from typing import List, Dict
@@ -65,7 +65,7 @@ def main():
     PREFIX = "multiengine/row/"
     
     # Set time range
-    start_time = datetime.now().replace(second=0, microsecond=0)
+    start_time = datetime.now().replace(second=0, microsecond=0).astimezone(timezone.utc)
     end_time = start_time + timedelta(hours=3)
     
     current_time = start_time
@@ -76,7 +76,7 @@ def main():
         # Generate the data for this minute
         minute_files_data = generate_minute_data(current_time, num_files)
         
-        # Create the partition path
+        # Create the partition path using UTC time
         partition_path = current_time.strftime("%Y-%m-%d/%H/%M")
         
         # Save each file

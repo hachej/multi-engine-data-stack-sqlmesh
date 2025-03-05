@@ -3,7 +3,9 @@ gateways:
     connection:
       type: athena
       work_group: primary
+      region_name: eu-central-1
       catalog_name: multiengine
+      s3_warehouse_location: s3://sumeo-parquet-data-lake/multiengine/metrics/
   duckdb_local:
     connection:
       type: duckdb
@@ -28,8 +30,8 @@ gateways:
       host: 127.0.0.1
       port: 5432
 
-default_gateway: duckdb_local
+default_gateway: athena
 
 model_defaults:
-  start: 2025-02-27
+  start: 2025-02-28 20:00:00
   dialect: duckdb
