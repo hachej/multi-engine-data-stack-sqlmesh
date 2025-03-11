@@ -6,6 +6,7 @@
 # ///
 from pyiceberg.schema import Schema
 from pyiceberg.catalog import load_catalog
+from pyiceberg.transforms import DayTransform, HourTransform
 import pyarrow.parquet as pq
 import pyarrow as pa
 import os 
@@ -44,18 +45,26 @@ if ("multiengine", "events") not in tables:
         location="s3://sumeo-parquet-data-lake/multiengine/events",
     )
 
-if ("multiengine", "metrics") not in tables:
-    print("Creating metrics table")
+# Add partitioning by minute to events table
+print("Adding partition spec to events table")
+events_table = catalog.load_table("multiengine.events")
+with events_table.transaction() as transaction:
+    with transaction.update_spec() as update_spec:
+        update_spec.add_field("timestamp", HourTransform(), "timestamp_hour")
 
-    schema = Schema(
-        NestedField(field_id=1, name="metric_id", field_type=StringType(), required=True),
-        NestedField(field_id=2, name="metric_name", field_type=StringType(), required=True), 
-        NestedField(field_id=3, name="metric_value", field_type=DoubleType(), required=True),
-        NestedField(field_id=4, name="timestamp", field_type=TimestampType(), required=True)
-    )
 
-    catalog.create_table(
-        "multiengine.metrics",
-        schema=schema,
-        location="s3://sumeo-parquet-data-lake/multiengine/metrics",
-    )
+# if ("multiengine", "metrics") not in tables:
+#     print("Creating metrics table")
+
+#     schema = Schema(
+#         NestedField(field_id=1, name="metric_id", field_type=StringType(), required=True),
+#         NestedField(field_id=2, name="metric_name", field_type=StringType(), required=True), 
+#         NestedField(field_id=3, name="metric_value", field_type=DoubleType(), required=True),
+#         NestedField(field_id=4, name="timestamp", field_type=TimestampType(), required=True)
+#     )
+
+#     catalog.create_table(
+#         "multiengine.metrics",
+#         schema=schema,
+#         location="s3://sumeo-parquet-data-lake/multiengine/metrics",
+#     )

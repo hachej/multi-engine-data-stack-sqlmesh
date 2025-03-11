@@ -2,6 +2,9 @@
 # dependencies = [
 #   "boto3",
 #   "pyarrow",
+#   "pyiceberg",
+#   "polars",
+#   "pyiceberg[glue]",
 # ]
 # ///
 
@@ -14,6 +17,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from typing import List, Dict
 import os
+from pyiceberg.catalog import load_catalog
+import polars as pl
 
 # Website actions that users might perform
 POSSIBLE_ACTIONS = [
@@ -29,6 +34,11 @@ POSSIBLE_ACTIONS = [
     "video_play",
     "video_pause"
 ]
+
+catalog = load_catalog("glue", **{"type": "glue",
+                            "glue.region":"eu-central-1",
+                            "s3.region":"eu-central-1"
+                    })
 
 def generate_event(timestamp: datetime) -> Dict:
     """Generate a single event with the specified schema"""
@@ -64,8 +74,8 @@ def main():
     BUCKET_NAME = "sumeo-parquet-data-lake"
     PREFIX = "multiengine/row/"
     
-    # Set time range
-    start_time = datetime.now().replace(second=0, microsecond=0).astimezone(timezone.utc)
+    # Set time range - use UTC time
+    start_time = datetime.now(timezone.utc).replace(second=0, microsecond=0)
     end_time = start_time + timedelta(hours=3)
     
     current_time = start_time
@@ -84,9 +94,13 @@ def main():
             file_name = f"events_{file_idx:03d}.jsonl"
             key = f"{PREFIX}{partition_path}/{file_name}"
             save_to_s3(events, BUCKET_NAME, key)
-            
-            print(f"Saved file: {key}")
-        
+
+        key_glob = f"s3://{BUCKET_NAME}/{PREFIX}{partition_path}/*"
+
+        print(f"Loading data from {key_glob}")
+        df = pl.scan_ndjson(key_glob).collect()
+        df = df.with_columns(pl.col("timestamp").cast(pl.Int64).mul(1_000_000).cast(pl.Datetime("us")))
+        catalog.load_table("multiengine.events").append(df.to_arrow())
         current_time += timedelta(minutes=1)
 
 if __name__ == "__main__":

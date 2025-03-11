@@ -1,11 +1,11 @@
 gateways:
-  athena:
-    connection:
-      type: athena
-      work_group: primary
-      region_name: eu-central-1
-      catalog_name: multiengine
-      s3_warehouse_location: s3://sumeo-parquet-data-lake/multiengine/metrics/
+  # athena:
+  #   connection:
+  #     type: athena
+  #     work_group: primary
+  #     region_name: eu-central-1
+  #     s3_staging_dir: s3://sumeo-parquet-data-lake/athena/ 
+  #     s3_warehouse_location: s3://sumeo-parquet-data-lake/multiengine/metrics/
   duckdb_local:
     connection:
       type: duckdb
@@ -18,19 +18,19 @@ gateways:
       catalogs:
         main_db:
           type: postgres
-          path: 'dbname=main_db user=postgres host=127.0.0.1'
+          path: 'dbname=main_db user=postgres password=password host=127.0.0.1'
       extensions:
         - name: iceberg
   postgres:
     connection:
       type: postgres
       database: main_db
-      user: user
+      user: postgres
       password: password
       host: 127.0.0.1
       port: 5432
 
-default_gateway: athena
+default_gateway: postgres
 
 model_defaults:
   start: 2025-02-28 20:00:00
