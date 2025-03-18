@@ -27,7 +27,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-# Run SQLMesh
+## Run SQLMesh
 
 ```
 cd sqlmesh
