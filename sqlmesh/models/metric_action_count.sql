@@ -8,7 +8,7 @@ MODEL (
 
 SELECT
    action,
-   count(1) as action_count
+   count(*) as action_count
 FROM
   multiengine.event 
 group by action

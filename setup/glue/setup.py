@@ -51,20 +51,3 @@ events_table = catalog.load_table("multiengine.events")
 with events_table.transaction() as transaction:
     with transaction.update_spec() as update_spec:
         update_spec.add_field("timestamp", HourTransform(), "timestamp_hour")
-
-
-# if ("multiengine", "metrics") not in tables:
-#     print("Creating metrics table")
-
-#     schema = Schema(
-#         NestedField(field_id=1, name="metric_id", field_type=StringType(), required=True),
-#         NestedField(field_id=2, name="metric_name", field_type=StringType(), required=True), 
-#         NestedField(field_id=3, name="metric_value", field_type=DoubleType(), required=True),
-#         NestedField(field_id=4, name="timestamp", field_type=TimestampType(), required=True)
-#     )
-
-#     catalog.create_table(
-#         "multiengine.metrics",
-#         schema=schema,
-#         location="s3://sumeo-parquet-data-lake/multiengine/metrics",
-#     )
