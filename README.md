@@ -1,6 +1,6 @@
 # Project setup
 
-![infra](./architecture.excalidraw.svg)
+![infra](./architecture.excalidraw.png)
 
 ## Setup glue catalog
 ````
